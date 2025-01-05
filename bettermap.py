@@ -1,7 +1,6 @@
 import signal
 import sys
 import platform
-import msvcrt
 import subprocess
 import threading
 from colorama import Fore
@@ -25,26 +24,28 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # Function to display the main menu
 def main_menu():
-    print(Fore.LIGHTWHITE_EX + ''' 
+    print(Fore.YELLOW + ''' 
                                               
-    __         __  __                                 
-   / /_  ___  / /_/ /____  _________ ___  ____  _____ 
-  / __ \/ _ \/ __/ __/ _ \/ ___/ __ __ \/ __ / __ //
- / /_/ /  __/ /_/ /_/  __/ /  / / / / / / /_/ / /_/ /
-/_.___/\___/\__/\__/\___/_/  /_/ /_/ /_/\__,_/ .___/ 
-                                            /_/  
+
+██████╗ ███████╗████████╗████████╗███████╗██████╗ ███╗   ███╗ █████╗ ██████╗ 
+██╔══██╗██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██╔══██╗██╔══██╗
+██████╔╝█████╗     ██║      ██║   █████╗  ██████╔╝██╔████╔██║███████║██████╔╝
+██╔══██╗██╔══╝     ██║      ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██╔══██║██╔═══╝ 
+██████╔╝███████╗   ██║      ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║  ██║██║     
+╚═════╝ ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝                                                                              
     Main Menu  biskit@   V 0.1
-    1. Automatic Scan (-sV -sI -p 20,21,22,23,25,53,69,139,445,1433,1434 -A -T4)
+    1. Automatic Scan (-sV -D -p 20,21,22,23,25,53,69,139,445,1433,1434 -A -T4)
     2. Show All Nmap Commands
     3. Show OS Scan Commands
     4. Show NSE Script Commands
     5. Show Firewall Scan Commands
     6. Scan Multiple IP Addresses (Up to 240 IPs)
-    11. Script Vulnerability Scan (-sV -sI --script=vuln -T4)
+    11. Script Vulnerability Scan (-sV -D --script=vuln -T4)
     22. Normal Nmap Scan (Manual Commands)
-    88. Automatic Stealth Scan (-sS -sI RND:10 -T4)
+    88. Automatic Stealth Scan (-sS -D -T4)
     00. Automatic Scan with DNS Resolution Disabled (-n -T4)
-    44. Exit the program''')
+    44. Exit the program
+    Press Ctrl+C to exit all scans.''')
 
 # Function to run a scan with a given command
 def run_scan(command, ip=None):
@@ -74,7 +75,7 @@ def run_scan(command, ip=None):
 # Function for automatic scan with default command
 def automatic_scan():
     ip = input("\nEnter IP address to scan: ")
-    full_command = f"nmap -sV -sI -p 20,21,22,23,25,53,69,139,445,1433,1434 -A -T4 {ip}"
+    full_command = f"nmap -sV -D -p 20,21,22,23,25,53,69,139,445,1433,1434 -A -T4 {ip}"
     run_scan(full_command, ip)
 
 # Function for automatic scan with DNS resolution disabled
@@ -83,10 +84,16 @@ def automatic_scan_no_dns():
     full_command = f"nmap -n -T4 {ip}"
     run_scan(full_command, ip)
 
+# Function for automatic stealth scan
+def automatic_stealth_scan():
+    ip = input("\nEnter IP address to scan: ")
+    full_command = f"nmap -sS -D RND:10 -T4 {ip}"
+    run_scan(full_command, ip)
+
 # Function to scan multiple IP addresses (up to 240) with options for automatic or manual scan
 def scan_multiple_ips():
     print("\nSelect an option:")
-    print("1. Automatic Scan (-sI -T4 -sS -sU --script=vuln)")
+    print("1. Automatic Scan (-D -T4 -sS -sU --script=vuln)")
     print("2. Manual Scan (Enter any Nmap scan command)")
     
     choice = input("\nEnter your choice: ").strip()
@@ -97,7 +104,7 @@ def scan_multiple_ips():
             print("You can only scan up to 240 IP addresses at once.")
             return
         
-        full_command = f"nmap -sI -T4 -sS -sU --script=vuln {' '.join(ips)}"
+        full_command = f"nmap -D -T4 -sS -sU --script=vuln {' '.join(ips)}"
         for ip in ips:
             run_scan(full_command, ip)
     
@@ -218,6 +225,8 @@ def main():
             print("Script Vulnerability Scan selected")
         elif choice == '22':
             normal_nmap_scan()
+        elif choice == '88':
+            automatic_stealth_scan()  # Updated 88 option with -sS -D -T4
         elif choice == '00':
             print("Automatic Scan with DNS Resolution Disabled selected")
             print("1. Automatic Scan")
